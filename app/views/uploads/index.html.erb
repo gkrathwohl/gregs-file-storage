@@ -2,7 +2,13 @@
 
 <h1>Listing Uploads</h1>
 
+
 <h2>Search: <%= @search %></h2>
+
+<form action="/uploads" >
+  <input type="text" name="search" />
+  <button value="submit">Submit</button>
+</form>
 
 <table>
   <thead>
