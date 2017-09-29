@@ -3,21 +3,10 @@ require 'docx'
 
 class UploadsController < ApplicationController
   before_action :set_upload, :only => [:show, :edit, :update, :destroy, :download]
-  before_action :authenticate_user, :except => [:auth, :login]
+  before_action :authenticate_user, :except => [:login]
 
 
   def login
-  end
-
-  def auth
-    puts "wtf\n\n\n"
-    puts params[:password]
-    if params[:password] == "cookie"
-      session[:logged_in] = "true"
-      redirect_to '/works'
-    else
-      # redirect_to '/login'
-    end
   end
 
   def download
@@ -55,8 +44,6 @@ class UploadsController < ApplicationController
   # POST /uploads
   # POST /uploads.json
   def create
-
-
     temp_file_path = params['file'].tempfile.path
     inferred_type = infer_type(temp_file_path)
     random_name = SecureRandom.uuid
@@ -67,24 +54,7 @@ class UploadsController < ApplicationController
     @upload['uploadDate'] = Time.now
     @upload['file_extension'] = inferred_type
     @upload['s3_name'] = random_name
-
-    full_text = ''
-    if(inferred_type == "docx")
-      # Create a Docx::Document object for our existing docx file
-      doc = Docx::Document.open(temp_file_path)
-      doc.paragraphs.each do |p|
-        full_text.concat(" ").concat(p.to_s)
-      end
-    end
-
-    if(inferred_type == "pdf")
-      reader = PDF::Reader.new(temp_file_path)
-      reader.pages.each do |page|
-        full_text.concat(" ").concat(page.text) 
-      end
-    end
-
-    @upload['full_text'] = full_text
+    @upload['full_text'] = extract_text(temp_file_path, inferred_type)
 
     respond_to do |format|
       if @upload.save
@@ -92,20 +62,6 @@ class UploadsController < ApplicationController
         format.json { render :show, status: :created, location: @upload }
       else
         format.html { render :new }
-        format.json { render json: @upload.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /uploads/1
-  # PATCH/PUT /uploads/1.json
-  def update
-    respond_to do |format|
-      if @upload.update(upload_params)
-        format.html { redirect_to @upload, notice: 'Upload was successfully updated.' }
-        format.json { render :show, status: :ok, location: @upload }
-      else
-        format.html { render :edit }
         format.json { render json: @upload.errors, status: :unprocessable_entity }
       end
     end
@@ -142,10 +98,27 @@ class UploadsController < ApplicationController
       if params[:password] == "cookie"
         session[:logged_in] = "true"
         redirect_to :action => :index
-      end
-      if session[:logged_in] != "true"
+      elsif session[:logged_in] != "true"
         redirect_to '/login'
       end
+    end
+
+
+    def extract_text(file_path, file_type)
+      full_text = ''
+      if(inferred_type == "docx")
+        doc = Docx::Document.open(temp_file_path)
+        doc.paragraphs.each do |p|
+          full_text.concat(" ").concat(p.to_s)
+        end
+      elsif(inferred_type == "pdf")
+        reader = PDF::Reader.new(temp_file_path)
+        reader.pages.each do |page|
+          full_text.concat(" ").concat(page.text) 
+        end
+      end
+
+      return full_text
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
