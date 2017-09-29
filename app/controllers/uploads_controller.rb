@@ -44,6 +44,10 @@ class UploadsController < ApplicationController
   # POST /uploads
   # POST /uploads.json
   def create
+    if params['file'] == nil
+      return redirect_to :action => :new
+    end
+
     temp_file_path = params['file'].tempfile.path
     inferred_type = infer_type(temp_file_path)
     random_name = SecureRandom.uuid
@@ -56,14 +60,10 @@ class UploadsController < ApplicationController
     @upload['s3_name'] = random_name
     @upload['full_text'] = extract_text(temp_file_path, inferred_type)
 
-    respond_to do |format|
-      if @upload.save
-        format.html { redirect_to :action => :index, notice: 'Upload was successfully created.' }
-        format.json { render :show, status: :created, location: @upload }
-      else
-        format.html { render :new }
-        format.json { render json: @upload.errors, status: :unprocessable_entity }
-      end
+    if @upload.save
+      redirect_to :action => :index, notice: 'Upload was successfully created.'
+    else
+      render :new
     end
   end
 
@@ -106,13 +106,13 @@ class UploadsController < ApplicationController
 
     def extract_text(file_path, file_type)
       full_text = ''
-      if(inferred_type == "docx")
-        doc = Docx::Document.open(temp_file_path)
+      if(file_type == "docx")
+        doc = Docx::Document.open(file_path)
         doc.paragraphs.each do |p|
           full_text.concat(" ").concat(p.to_s)
         end
-      elsif(inferred_type == "pdf")
-        reader = PDF::Reader.new(temp_file_path)
+      elsif(file_type == "pdf")
+        reader = PDF::Reader.new(file_path)
         reader.pages.each do |page|
           full_text.concat(" ").concat(page.text) 
         end

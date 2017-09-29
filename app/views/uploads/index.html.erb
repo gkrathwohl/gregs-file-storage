@@ -8,10 +8,14 @@
       </span>
     </div>
   </form>
-  <%= link_to 'Upload File', new_upload_path, { :class=>"btn btn-default upload-file" } %>
   <% if @search && @search != "" %>
-    <h2>Search: <%= @search %></h2>
+    <div class="seach-words">
+      <h3>Search: <%= @search %><h3>
+      <%= link_to 'Clear search', :uploads, { :class=>"btn btn-default" } %>
+    </div>
   <% end %>
+  <%= link_to 'Upload File', new_upload_path, { :class=>"btn btn-default upload-file" } %>
+
 </div>
 <div>
 <table class="table main-table">
