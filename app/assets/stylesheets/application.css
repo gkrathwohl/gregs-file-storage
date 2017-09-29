@@ -13,3 +13,40 @@
  *= require_tree .
  *= require_self
  */
+
+ .login {
+   max-width: 400px;
+   margin: auto;
+ }
+
+ .login > h3 {
+   padding: 40px;
+ }
+
+ .main-table {
+   width: 70%;
+   margin: auto;
+ }
+ 
+ .index-header {
+   max-width: 400px;
+   margin: auto;
+ }
+
+ .upload-file {
+   font-weight: bold;
+   margin: 15px;
+ }
+
+ body {
+   padding-top: 60px;
+ }
+
+ .upload-form {
+  max-width: 400px;
+  margin: auto;
+ }
+
+ .cancel {
+   float: right;
+ }

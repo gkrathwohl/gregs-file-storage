@@ -2,8 +2,23 @@ require 'aws-sdk'
 require 'docx'
 
 class UploadsController < ApplicationController
-  before_action :set_upload, only: [:show, :edit, :update, :destroy, :download]
+  before_action :set_upload, :only => [:show, :edit, :update, :destroy, :download]
+  before_action :authenticate_user, :except => [:auth, :login]
 
+
+  def login
+  end
+
+  def auth
+    puts "wtf\n\n\n"
+    puts params[:password]
+    if params[:password] == "cookie"
+      session[:logged_in] = "true"
+      redirect_to '/works'
+    else
+      # redirect_to '/login'
+    end
+  end
 
   def download
     s3 = Aws::S3::Client.new
@@ -16,7 +31,7 @@ class UploadsController < ApplicationController
   # GET /uploads.json
   def index
     @search = params[:search]
-    if @search
+    if @search && @search != ""
       @uploads= Upload.search(@search)
     else
       @uploads = Upload.all
@@ -121,6 +136,16 @@ class UploadsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_upload
       @upload = Upload.find(params[:id])
+    end
+
+    def authenticate_user
+      if params[:password] == "cookie"
+        session[:logged_in] = "true"
+        redirect_to :action => :index
+      end
+      if session[:logged_in] != "true"
+        redirect_to '/login'
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

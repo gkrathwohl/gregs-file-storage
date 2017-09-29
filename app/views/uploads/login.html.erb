@@ -1,0 +1,10 @@
+<div class="login">
+  <h3 class="text-center">Protected File Storage</h3>
+  <%= form_tag({:action => :create}) do %>
+    <div class="form-group">
+      <label for="password">Enter Password</label>
+      <input type="password" class="form-control" name="password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  <% end %>
+</div>
