@@ -3,6 +3,18 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.5'
+
+# s3 uploads
+gem 'aws-sdk', '~> 2'
+
+# read files
+gem 'docx'
+gem 'pdf-reader'
+
+# pg full text search
+gem 'pg_search'
+
+
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3'
 gem 'pg'
